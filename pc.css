@@ -1,0 +1,5 @@
+/* PC版：キーボードとマウスで遊ぶ */
+.card { position: relative; }
+.card .key { position: absolute; top: 12px; right: 12px; margin: 0; font-size: 13px; padding: 4px 8px; }
+body[data-scene="play"], body[data-scene="calib"] { cursor: none; }
+#pad { display: none; }
