@@ -1,5 +1,7 @@
 /* スマホ版：タップで遊ぶ。縦持ちのときは下半分をタップ面にする */
 kbd { display: none; }
+/* 画面ごと固定して、引っぱりスクロールや拡大でずれないようにする */
+html, body { position: fixed; inset: 0; width: 100%; height: 100%; overscroll-behavior: none; }
 /* ダブルタップ拡大を止める（touch-action は要素ごとに効くので全要素に付ける） */
 * { touch-action: manipulation; }
 body[data-scene="play"], body[data-scene="play"] *, body[data-scene="calib"], body[data-scene="calib"] * { touch-action: none; }

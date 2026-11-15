@@ -9,6 +9,7 @@ const W = 960, H = 540;
 const cv = document.getElementById('game');
 const ctx = cv.getContext('2d');
 const ui = document.getElementById('ui');
+const VERSION = '1.2';
 const IS_SP = document.body.dataset.platform === 'sp';
 const KEY_LABEL = IS_SP ? 'タップ' : 'スペース';
 let portrait = false;
@@ -1036,6 +1037,7 @@ function showTitle() {
       ${CAN_FS ? '<button class="btn ghost" data-act="fs">全画面<kbd>F</kbd></button>' : ''}
     </div>
     <p class="hint">${HINT}</p>
+    <p class="ver">ver ${VERSION}</p>
   </div>`;
 }
 function showResult(r) {
@@ -1125,9 +1127,17 @@ addEventListener('contextmenu', e => { if (playing()) e.preventDefault(); });
 // ボタンやリンクの上だけは止めない（止めるとクリックが発生しなくなる）
 if (IS_SP) {
   const onControl = t => t.closest && t.closest('button, input, a');
-  document.addEventListener('touchstart', e => { if (playing() || e.touches.length > 1) e.preventDefault(); }, { passive: false });
-  document.addEventListener('touchend', e => { if (playing() || !onControl(e.target)) e.preventDefault(); }, { passive: false });
-  for (const ev of ['gesturestart', 'gesturechange', 'dblclick']) document.addEventListener(ev, e => e.preventDefault(), { passive: false });
+  const opt = { passive: false, capture: true };
+  let lastEnd = 0;
+  window.addEventListener('touchstart', e => { if (playing() || e.touches.length > 1) e.preventDefault(); }, opt);
+  window.addEventListener('touchmove', e => { if (playing() || e.touches.length > 1) e.preventDefault(); }, opt);
+  window.addEventListener('touchend', e => {
+    const now = performance.now();
+    // プレイ中は全部、メニューでも0.35秒以内の2回目のタップ（＝ダブルタップ）はボタン以外で止める
+    if (playing() || (!onControl(e.target) && now - lastEnd < 350)) e.preventDefault();
+    lastEnd = now;
+  }, opt);
+  for (const ev of ['gesturestart', 'gesturechange', 'gestureend', 'dblclick']) window.addEventListener(ev, e => e.preventDefault(), opt);
 }
 document.addEventListener('visibilitychange', () => { if (document.hidden && playing()) quitToMenu(); });
 
