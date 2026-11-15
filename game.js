@@ -1121,6 +1121,14 @@ addEventListener('pointerdown', e => {
   press(evtTime(e)); tapFx();
 }, { passive: false });
 addEventListener('contextmenu', e => { if (playing()) e.preventDefault(); });
+// iPhone の Safari は user-scalable=no を無視するので、連打（ダブルタップ）やピンチでの拡大をここで止める。
+// ボタンやリンクの上だけは止めない（止めるとクリックが発生しなくなる）
+if (IS_SP) {
+  const onControl = t => t.closest && t.closest('button, input, a');
+  document.addEventListener('touchstart', e => { if (playing() || e.touches.length > 1) e.preventDefault(); }, { passive: false });
+  document.addEventListener('touchend', e => { if (playing() || !onControl(e.target)) e.preventDefault(); }, { passive: false });
+  for (const ev of ['gesturestart', 'gesturechange', 'dblclick']) document.addEventListener(ev, e => e.preventDefault(), { passive: false });
+}
 document.addEventListener('visibilitychange', () => { if (document.hidden && playing()) quitToMenu(); });
 
 resize();
